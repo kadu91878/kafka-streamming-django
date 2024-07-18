@@ -9,9 +9,8 @@ services:
       POSTGRES_PASSWORD: mypassword
     ports:
       - "5432:5432"
-
     networks:
-     - kafka1
+      - kafka1
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -23,8 +22,10 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CREATE_TOPICS: "user_validations:1:1"
+    depends_on:
+      - zookeeper
     networks:
-     - kafka1
+      - kafka1
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -34,11 +35,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-     - kafka1
+      - kafka1
 
   web:
     build: .
-    #command: bash -c "./wait-for-it.sh postgres:5432 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     command: bash -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -55,11 +55,11 @@ services:
       POSTGRES_HOST: db
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
-    - kafka1
+      - kafka1
   
   consumer:
     build: .
-    command: python users/consumer.py
+    command: python manage.py runconsumer
     volumes:
       - .:/app
     depends_on:
@@ -73,7 +73,22 @@ services:
       POSTGRES_HOST: db
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
-     - kafka1
+      - kafka1
+
+  producer:
+    build: .
+    command: python manage.py runproducer
+    depends_on:
+      - kafka
+      - zookeeper
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_HOST: db
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - kafka1
 
   pgadmin:
     image: dpage/pgadmin4
@@ -85,7 +100,7 @@ services:
     depends_on:
       - db
     networks:
-     - kafka1
+      - kafka1
 
 networks:
- kafka1:
+  kafka1:

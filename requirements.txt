@@ -3,3 +3,4 @@ djangorestframework
 psycopg2-binary
 confluent_kafka
 drf_yasg
+kafka-python

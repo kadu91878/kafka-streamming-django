@@ -1,13 +1,18 @@
 # users/models.py
 
 from django.db import models
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
 
-class User(models.Model):
-    user_name = models.CharField(max_length=100)
-    user_last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
-    validation = models.CharField(max_length=50, default="PENDING")
+class UserValidation(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField(validators=[EmailValidator()])
+    is_valid = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.email
+    def clean(self):
+        if not self.name:
+            raise ValidationError('Name cannot be empty')
+        if not self.email:
+            raise ValidationError('Email cannot be empty')
+
