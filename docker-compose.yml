@@ -3,14 +3,18 @@ version: '3.8'
 services:
   db:
     image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "5432:5432"
     networks:
       - kafka1
+    env_file:
+      - .env
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -39,6 +43,8 @@ services:
 
   web:
     build: .
+    # entrypoint: ["/app/entrypoint.sh"]
+    # command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     command: bash -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -49,17 +55,21 @@ services:
       - kafka
       - zookeeper
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_HOST: db
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_HOST: ${DATABASE_HOST}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     networks:
       - kafka1
-  
+    env_file:
+      - .env
+
   consumer:
     build: .
-    command: python manage.py runconsumer
+    # entrypoint: ["/app/entrypoint.sh"]
+    # command: bash -c "python manage.py migrate && python manage.py runconsumer"
+    command: bash -c "python manage.py runconsumer"
     volumes:
       - .:/app
     depends_on:
@@ -67,28 +77,36 @@ services:
       - kafka
       - zookeeper
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_HOST: db
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BROKER_ID: 1
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_HOST: ${DATABASE_HOST}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     networks:
       - kafka1
+    env_file:
+      - .env
 
   producer:
     build: .
-    command: python manage.py runproducer
+    # entrypoint: ["/app/entrypoint.sh"]
+    # command: bash -c "python manage.py migrate && python manage.py runproducer"
+    command: bash -c "python manage.py runproducer"
     depends_on:
       - kafka
       - zookeeper
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_HOST: db
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BROKER_ID: 1
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_HOST: ${DATABASE_HOST}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     networks:
       - kafka1
+    env_file:
+      - .env
 
   pgadmin:
     image: dpage/pgadmin4
@@ -101,6 +119,10 @@ services:
       - db
     networks:
       - kafka1
+    env_file:
+      - .env
 
 networks:
   kafka1:
+volumes:
+  postgres_data:

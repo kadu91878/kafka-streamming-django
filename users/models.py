@@ -4,7 +4,7 @@ from django.db import models
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 
-class UserValidation(models.Model):
+class User(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(validators=[EmailValidator()])
@@ -15,4 +15,7 @@ class UserValidation(models.Model):
             raise ValidationError('Name cannot be empty')
         if not self.email:
             raise ValidationError('Email cannot be empty')
+
+def __str__(self):
+        return self.username
 

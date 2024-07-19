@@ -3,7 +3,7 @@
 import json
 from kafka import KafkaConsumer
 from django.conf import settings
-from .models import UserValidation
+from .models import User
 from django.core.exceptions import ValidationError
 
 consumer = KafkaConsumer(
@@ -12,13 +12,14 @@ consumer = KafkaConsumer(
     auto_offset_reset='earliest',
     enable_auto_commit=True,
     group_id='my-group',
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+    value_deserializer=lambda x: json.loads(x.decode('utf-8')),
+    api_version=(3, 0, 0)
 )
 
 for message in consumer:
     user_data = message.value
     try:
-        user_validation = UserValidation(**user_data)
+        user_validation = User(**user_data)
         user_validation.full_clean()  # Validate model data
         user_validation.save()
         print(f"User validation saved: {user_validation}")
