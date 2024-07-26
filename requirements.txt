@@ -6,3 +6,4 @@ drf_yasg
 kafka-python
 faust
 asgiref
+uuid

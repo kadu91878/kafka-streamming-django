@@ -66,28 +66,51 @@ services:
     env_file:
       - .env
 
-  consumer:
-    build: .
-    # entrypoint: ["/app/entrypoint.sh"]
-    # command: bash -c "python manage.py migrate && python manage.py runconsumer"
-    command: bash -c "python manage.py runconsumer"
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-      - kafka
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_HOST: ${DATABASE_HOST}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-    networks:
-      - kafka1
-    env_file:
-      - .env
+  # consumer:
+  #   build: .
+  #   # entrypoint: ["/app/entrypoint.sh"]
+  #   # command: bash -c "python manage.py migrate && python manage.py runconsumer"
+  #   command: bash -c "python manage.py runconsumer"
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - db
+  #     - kafka
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     POSTGRES_DB: ${DATABASE_NAME}
+  #     POSTGRES_USER: ${DATABASE_USER}
+  #     POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+  #     POSTGRES_HOST: ${DATABASE_HOST}
+  #     KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+  #   networks:
+  #     - kafka1
+  #   env_file:
+  #     - .env
+
+  # consumer_2:
+  #   build: .
+  #   # entrypoint: ["/app/entrypoint.sh"]
+  #   # command: bash -c "python manage.py migrate && python manage.py runconsumer"
+  #   command: bash -c "python manage.py runconsumer"
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - db
+  #     - kafka
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     POSTGRES_DB: ${DATABASE_NAME}
+  #     POSTGRES_USER: ${DATABASE_USER}
+  #     POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+  #     POSTGRES_HOST: ${DATABASE_HOST}
+  #     KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+  #   networks:
+  #     - kafka1
+  #   env_file:
+  #     - .env
 
   producer:
     build: .
@@ -141,6 +164,7 @@ services:
       - kafka1
     env_file:
       - .env
+    scale: 3
 
 networks:
   kafka1:

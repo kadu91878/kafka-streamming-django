@@ -2,6 +2,7 @@ import os
 import django
 import faust
 from asgiref.sync import sync_to_async
+import uuid
 
 # Set up Django settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kafka_app.settings')
@@ -14,7 +15,7 @@ from users.models import User
 app = faust.App('user_validation_app', broker=f'kafka://{settings.KAFKA_BOOTSTRAP_SERVERS}')
 
 class UserRecord(faust.Record, serializer='json'):
-    id: int
+    id: uuid.UUID
     name: str
     email: str
 
